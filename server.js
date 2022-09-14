@@ -29,15 +29,20 @@ const sockets = [];
 //server.js의 socket은 연결된 브라우저를 뜻한다.
 wss.on("connection", (socket) => {
   sockets.push(socket);
+  socket["nickname"] = "Anon";
   console.log("Connected to Browser");
   socket.on("close", () => console.log("Disconnected from the Browser"));
-  socket.on("message", (message) => {
-    const parsed = JSON.parse(message.toString());
-    switch (parsed.type) {
+  socket.on("message", (msg) => {
+    const message = JSON.parse(msg.toString());
+    switch (message.type) {
       case "new_message":
-        sockets.forEach((aSocket) => aSocket.send(parsed.payload));
+        sockets.forEach((aSocket) => 
+          aSocket.send(`${socket.nickname}: ${message.payload}`));
+          break;
+        //nickname을 socket안에 저장
       case "nickname":
-        console.log(parsed.payload); //type은 메세지의 종류, payload는 메시지에 담겨있는 중요한 정보
+        socket["nickname"] = message.payload;
+        break;
     }
   });
 });

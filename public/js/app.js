@@ -33,6 +33,9 @@ function handleSubmit(event) {
   const input = messageForm.querySelector("input");
   //backend로 보내고 메세지를 보냄
   socket.send(makeMessage("new_message", input.value));
+  const li = document.createElement("li");
+  li.innerText = `You: ${input.value}`;
+  messageList.append(li)
   input.value = "";
 }
 
@@ -40,6 +43,7 @@ function handleNickSubmit(event) {
   event.preventDefault();
   const input = nickForm.querySelector("input");
   socket.send(makeMessage("nickname", input.value));
+  input.value = "";
 }
 
 messageForm.addEventListener("submit", handleSubmit);
