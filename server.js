@@ -33,10 +33,11 @@ wss.on("connection", (socket) => {
   socket.on("close", () => console.log("Disconnected from the Browser"));
   socket.on("message", (message) => {
     const parsed = JSON.parse(message.toString());
-    if(parsed.type === "new_message"){
-      sockets.forEach((aSocket) => aSocket.send(parsed.payload));
-    } else if(parsed.type === "nickname"){
-      console.log(parsed.payload); //type은 메세지의 종류, payload는 메시지에 담겨있는 중요한 정보
+    switch (parsed.type) {
+      case "new_message":
+        sockets.forEach((aSocket) => aSocket.send(parsed.payload));
+      case "nickname":
+        console.log(parsed.payload); //type은 메세지의 종류, payload는 메시지에 담겨있는 중요한 정보
     }
   });
 });
