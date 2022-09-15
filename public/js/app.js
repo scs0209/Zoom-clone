@@ -21,6 +21,7 @@ function handleRoomSubmit(event){
   const input = document.querySelector("input");
 
 
+
 //대화창에 메세지가 보이도록 만들어줌
 function handleMessageSubmit(event){
   event.preventDefault();
@@ -69,3 +70,17 @@ socket.on("bye", (left) => {addMessage(`${left} left ㅠㅠ`);});
 
 //화면에 내가 보낸 메세지를 표시
 socket.on("new_message", addMessage);
+
+//열려있는 방의 목록을 보여줌 닫히면 다시 사라진다.
+socket.on("room_change", (rooms) => {
+  const roomList = welcome.querySelector("ul");
+  roomList.innerHTML = "";
+  if(rooms.length === 0) {
+    return;
+  }
+  rooms.forEach((room) => {
+    const li = document.createElement("li");
+    li.innerText = room;
+    roomList.append(li);
+  });
+});

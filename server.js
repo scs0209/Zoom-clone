@@ -22,9 +22,28 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
+//sids에는 개인방, rooms에는 개인방,공개방 다있음.
+// rooms가 sids를 포함한다 보면됨.
+// 그래서 공개방만 얻고 싶을때는 rooms에서 sids를 빼면 됨
+function publicRooms () {
+  const {
+    sockets: {
+      adapter: {sids, rooms},
+    },
+  } = wsServer;
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if(sids.get(key) === undefined){
+      publicRooms.push(key)
+    }
+  })
+  return publicRooms;
+}
+
 wsServer.on("connection", (socket) => {
   socket["nickname"] = "익명";
   socket.onAny((event) => {
+    console.log(wsServer.sockets.adapter);
     console.log(`Socket Event:${event}`);
   });
   //websocket처럼 message만 넣어주는 것이 아닌 room등 다른 event들을 넣어줄 수 있다.
@@ -32,17 +51,24 @@ wsServer.on("connection", (socket) => {
   socket.on("enter_room", (roomName, done) => {
     socket.join(roomName);
     done();
+    //socket을 한개에만 보냄
     socket.to(roomName).emit("welcome", socket.nickname);
+    //socket을 모두에게 보냄
+    wsServer.sockets.emit("room_change", publicRooms());
   });
   //누군가 나갔을 때 채팅방에서 알려줌
   socket.on("disconnecting", () => {
-    socket.rooms.forEach(room => socket.to(room).emit("bye", socket.nickname));  
+    socket.rooms.forEach(room => socket.to(room).emit("bye", socket.nickname));
   });
+  socket.on("disconnect", () => {
+    wsServer.sockets.emit("room_change", publicRooms());
+  })
   socket.on("new_message", (msg, room, done) => {
     socket.to(room).emit("new_message", `${socket.nickname}: ${msg}`);
     done();
   });
   socket.on("nickname", (nickname) => (socket["nickname"] = nickname));
+  wsServer.sockets.emit("room_change", publicRooms());
 });
 
 
