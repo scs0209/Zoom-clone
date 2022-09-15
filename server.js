@@ -23,14 +23,14 @@ const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
 wsServer.on("connection", (socket) => {
+  socket.onAny((event) => {
+    console.log(`Socket Event:${event}`);
+  });
   //websocket처럼 message만 넣어주는 것이 아닌 room등 다른 event들을 넣어줄 수 있다.
   //front의 emit의 event와 back의 event 이름음 동일해야 한다!!
-  socket.on("enter_room", (msg, done) => {
-    console.log(msg);
-    setTimeout(() => {
-      //이 함수는 front end의 함수를 실행시키는 것이 아니라 back-end에서 요청해서 front-end에서 수행시켜준다.(back-end에서 코드가 보이면 심각한 위험이 있기 때문에!!)
-      done("hello from the backend!");
-    }, 10000);
+  socket.on("enter_room", (roomName, done) => {
+    socket.join(roomName);
+    done();
   });
 })
 
