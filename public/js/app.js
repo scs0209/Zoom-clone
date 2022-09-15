@@ -45,7 +45,7 @@ function showRoom(){
   welcome.hidden = true;
   room.hidden = false;
   const h3 = room.querySelector("h3");
-  h3.innerText = `Room ${roomName}`
+  h3.innerText = `Room ${roomName}`;
   const msgForm = room.querySelector("#msg");
   const nameForm = room.querySelector("#name");
   msgForm.addEventListener("submit", handleMessageSubmit);
@@ -63,10 +63,18 @@ function showRoom(){
 from.addEventListener("submit", handleRoomSubmit);
 
 //채팅방에 누군가 들어왔을 때 알려주는 코드
-socket.on("welcome", (user) => {addMessage(`${user} arrived!`);});
+socket.on("welcome", (user, newCount) => {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${newCount})`;
+  addMessage(`${user} arrived!`);
+});
 
 //채팅방에 누군가 나갔을때 알려주는 코드
-socket.on("bye", (left) => {addMessage(`${left} left ㅠㅠ`);});
+socket.on("bye", (left, newCount) => {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${newCount})`;
+  addMessage(`${left} left ㅠㅠ`);
+});
 
 //화면에 내가 보낸 메세지를 표시
 socket.on("new_message", addMessage);

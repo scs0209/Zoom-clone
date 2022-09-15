@@ -1,7 +1,8 @@
 import http from "http";
-import SocketIO from "socket.io";
+import {Server} from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
 import express from "express";
-import { copyFileSync } from "fs";
+
 
 
 const app = express();
@@ -20,7 +21,16 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 
 //http와 ws서버 둘 다 연결시켜줌, 그러나 꼭 이렇게 해 줄 필요없이 필요한건 하나만 연결시켜주어도 된다.
 const httpServer = http.createServer(app);
-const wsServer = SocketIO(httpServer);
+const wsServer = new Server (httpServer, {
+  cors: {
+    origin: ["https://admin.socket.io"],
+    credentials: true,
+  },
+});
+
+instrument(wsServer, {
+  auth: false
+});
 
 //sids에는 개인방, rooms에는 개인방,공개방 다있음.
 // rooms가 sids를 포함한다 보면됨.
@@ -40,6 +50,10 @@ function publicRooms () {
   return publicRooms;
 }
 
+function countRoom(roomName){
+  return wsServer.sockets.adapter.rooms.get(roomName)?.size;
+}
+
 wsServer.on("connection", (socket) => {
   socket["nickname"] = "익명";
   socket.onAny((event) => {
@@ -52,13 +66,13 @@ wsServer.on("connection", (socket) => {
     socket.join(roomName);
     done();
     //socket을 한개에만 보냄
-    socket.to(roomName).emit("welcome", socket.nickname);
+    socket.to(roomName).emit("welcome", socket.nickname, countRoom(roomName));
     //socket을 모두에게 보냄
     wsServer.sockets.emit("room_change", publicRooms());
   });
   //누군가 나갔을 때 채팅방에서 알려줌
   socket.on("disconnecting", () => {
-    socket.rooms.forEach(room => socket.to(room).emit("bye", socket.nickname));
+    socket.rooms.forEach(room => socket.to(room).emit("bye", socket.nickname, countRoom(room) - 1));
   });
   socket.on("disconnect", () => {
     wsServer.sockets.emit("room_change", publicRooms());
