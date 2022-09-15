@@ -1,50 +1,24 @@
-const messageList = document.querySelector("ul");
-const messageForm = document.querySelector("#message");
-const nickForm = document.querySelector("#nick");
-// backend로 메세지를 보내고 받을 수 있다.
-//app.js의 socket은 서버로의 연결을 뜻함
-const socket = new WebSocket(`ws://${window.location.host}`);//backend 연결
+//socketIO를 front-end에서 back-end와 연결시켜줌
+const socket = io();
 
+const welcome = document.getElementById("welcome");
+const from = welcome.querySelector("form");
 
-function makeMessage(type, payload){
-  const msg = {type, payload};
-  // JSON.stringify는 object를 string으로 변경해서 보냄
-  return JSON.stringify(msg);
-}
-
-socket.addEventListener("open", () => {
-  console.log("Connected to Server");
-});
-
-socket.addEventListener("message", (message) => {
-  const li = document.createElement("li");
-  li.innerText = message.data;
-  messageList.append(li);
-});
-
-//오프라인이 됐을 때 사용하는 listener
-socket.addEventListener("close", () => {
-  console.log("Disconnected from Server");
-});
-
-
-function handleSubmit(event) {
+function handleRoomSubmit(event){
   event.preventDefault();
-  const input = messageForm.querySelector("input");
-  //backend로 보내고 메세지를 보냄
-  socket.send(makeMessage("new_message", input.value));
-  const li = document.createElement("li");
-  li.innerText = `You: ${input.value}`;
-  messageList.append(li)
+  const input = document.querySelector("input");
+
+
+//backend에서 실행을 시켜줌, 그리고 backend에서 인자를 전달 받을 수 있다. 또한 함수는 항상 마지막 인자에 넣어준다.
+function backendDone(msg){
+  console.log(`The backend says: `, msg);
+};
+
+  //websocket처럼 string만 전송할 필요 없이 socketIO는 emit을 이용해 객체도 전송할 수 있다.
+  // front에 있는 emit에 적은 function을 back에서 제어 할 수 있다.
+  //인자를 내가 원하는 만큼 보내줄 수 있다(어떤 type이든 가능), 끝났다는 것을 알려주기 위한 function을 사용할때는 곡 마지막 인자에 넣어주어야 한다.
+  socket.emit("enter_room", {payload: input.value}, backendDone);
   input.value = "";
 }
 
-function handleNickSubmit(event) {
-  event.preventDefault();
-  const input = nickForm.querySelector("input");
-  socket.send(makeMessage("nickname", input.value));
-  input.value = "";
-}
-
-messageForm.addEventListener("submit", handleSubmit);
-nickForm.addEventListener("submit", handleNickSubmit);
+from.addEventListener("submit", handleRoomSubmit);

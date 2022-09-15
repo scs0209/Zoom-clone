@@ -1,7 +1,8 @@
 import http from "http";
-import WebSocket from "ws";
+import SocketIO from "socket.io";
 import express from "express";
-import { parse } from "path";
+import { copyFileSync } from "fs";
+
 
 const app = express();
 
@@ -18,33 +19,49 @@ app.get("/*", (_, res) => res.redirect("/"))
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 
 //http와 ws서버 둘 다 연결시켜줌, 그러나 꼭 이렇게 해 줄 필요없이 필요한건 하나만 연결시켜주어도 된다.
-const server = http.createServer(app);
-const wss = new WebSocket.Server({server});
+const httpServer = http.createServer(app);
+const wsServer = SocketIO(httpServer);
+
+wsServer.on("connection", (socket) => {
+  //websocket처럼 message만 넣어주는 것이 아닌 room등 다른 event들을 넣어줄 수 있다.
+  //front의 emit의 event와 back의 event 이름음 동일해야 한다!!
+  socket.on("enter_room", (msg, done) => {
+    console.log(msg);
+    setTimeout(() => {
+      //이 함수는 front end의 함수를 실행시키는 것이 아니라 back-end에서 요청해서 front-end에서 수행시켜준다.(back-end에서 코드가 보이면 심각한 위험이 있기 때문에!!)
+      done("hello from the backend!");
+    }, 10000);
+  });
+})
+
 
 //가짜 데이터베이스를 만들어줌
 //누군가 우리 서버에 연결하면, 그 connection을 여기에 넣는다.
-const sockets = [];
+// const sockets = [];
 
-//frontend로 메세지를 보내고 받을 수 있다.
-//server.js의 socket은 연결된 브라우저를 뜻한다.
-wss.on("connection", (socket) => {
-  sockets.push(socket);
-  socket["nickname"] = "Anon";
-  console.log("Connected to Browser");
-  socket.on("close", () => console.log("Disconnected from the Browser"));
-  socket.on("message", (msg) => {
-    const message = JSON.parse(msg.toString());
-    switch (message.type) {
-      case "new_message":
-        sockets.forEach((aSocket) => 
-          aSocket.send(`${socket.nickname}: ${message.payload}`));
-          break;
-        //nickname을 socket안에 저장
-      case "nickname":
-        socket["nickname"] = message.payload;
-        break;
-    }
-  });
-});
+// //frontend로 메세지를 보내고 받을 수 있다.
+// //server.js의 socket은 연결된 브라우저를 뜻한다.
+// const wss = new WebSocket.Server({server});
+// wss.on("connection", (socket) => {
+//   sockets.push(socket);
+//   socket["nickname"] = "Anon";
+//   console.log("Connected to Browser");
+//   socket.on("close", () => console.log("Disconnected from the Browser"));
+//   socket.on("message", (msg) => {
+//     const message = JSON.parse(msg.toString());
+//     switch (message.type) {
+//       case "new_message":
+//         sockets.forEach((aSocket) => 
+//           aSocket.send(`${socket.nickname}: ${message.payload}`));
+//           break;
+//         //nickname을 socket안에 저장
+//       case "nickname":
+//         socket["nickname"] = message.payload;
+//         break;
+//     }
+//   });
+// });
 
-server.listen(3000, handleListen);
+
+
+httpServer.listen(3000, handleListen);
