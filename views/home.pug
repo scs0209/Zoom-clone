@@ -5,27 +5,27 @@ html(lang="en")
     meta(http-equiv="X-UA-Compatible", content="IE=edge")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title Noom
+    <script src="https://kit.fontawesome.com/bd7b0a019d.js" crossorigin="anonymous"></script>
     //- css작업해주기 전에 페이지가 그나마 덜 못생겨 보이게 해주는 것
     <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.9.0/mvp.css">
+    link(rel="stylesheet", href="./public/css/style.css")
   body 
       header
-        h1 Noom
+        h1 <i class="fa-solid fa-video"></i>Noom
       main
         div#welcome
+          h2 Welcome join our room!!
           form
             input(placeholder="room name", required, type="text")
-            button Enter Room
-          h4 Open Rooms:
-          ul
-        div#room 
-          h3
-          ul 
-          form#name
-            input(placeholder="nickname", required, type="text")
-            button Save
-          form#msg
-            input(placeholder="message", required, type="text")
-            button Send
-      //- socketIO에는 이미 room이라는 기능이 있다(socketIO를 다운받고 사용)
+            button Enter room
+      //- playsinline은 모바일 브라우저가 필요로 하는 property
+      //- 모바일 기기로 비디오를 재생하면 비디오가 전체화면이 되버림 -> playsinline을 하면 전체화면이 되지 않는다!
+      div#call
+        div#myStream
+          video#myFace(autoplay, playsinline, width="500", height="500")
+          button#mute Mute
+          button#camera Camera Off
+          select#cameras
+          video#peerFace(autoplay, playsinline, width="500", height="500")
       script(src="/socket.io/socket.io.js")
       script(src="/public/js/app.js") 
