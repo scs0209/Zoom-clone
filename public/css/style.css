@@ -3,8 +3,8 @@
 :root {
   --black-color: #212121;
 
-  --header-background-color: #102027;
-  --main-background-color: #546e7a;
+  --header-background-color: #ebe9e4;
+  --main-background-color: #d9d6d4;
   --chatBox-background-color: #37474f;
   --controler-background-color: #29434e;
 
@@ -20,54 +20,90 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
+
+
 body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  color: var(--black-color);
 }
 
 header {
-  width: 1000px;
+  width: 100%;
+  height: 7vh;
+
+  margin: 0;
   background-color: var(--header-background-color);
-  color: white;
-  font-size: 150px;
+  color: #62ccff;
+
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+}
+
+header i {
+  margin-left: 20px;
+}
+
+header h1 {
+  margin-left: 10px;
+
+  font-size: 150%;
   font-weight: 600;
-  text-align: center;
   letter-spacing: 2px;
 }
 
 main {
   width: 100%;
   height: 93vh;
+  margin: 0;
+  background-color: var(--main-background-color);
 
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-form{
-  text-align: center;
-}
+
 
 
 #welcome h2{
   text-align: center;
   font-weight: 600;
   font-size: larger;
-  margin-bottom: 20px;
+  color: var(--modal-box-color);
+  padding: 20px;
 }
 
 #welcome input{
-  display: block;
-  margin: 0 auto;
-  text-align: center;
+  width: 80%;
+  height: 10%;
+  padding: 3px 10px;
+  margin-bottom: 30px;
+
+  color: white;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  outline: none;
+
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+#welcome input::placeholder{
+  color: white;
+}
+
+#welcome input:focus {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset,
+      rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
 }
 
 
 button:hover {
   opacity: 0.50;
 }
-
 
 
 #welcome form {
@@ -85,5 +121,64 @@ button:hover {
   align-items: center;
 }
 
+
+.call {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+
+#streamBox{
+    position: relative;
+      width: 80%;
+      height: 100%;
+}
+
+#streamBox #myStream{
+  width: 100%;
+  height: calc(100% - 51px);
+
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+
+#myStream video{
+    width: 100%;
+    height: 100%;
+    border-radius: 10%;
+    display: flex;
+    transform: rotateY(180deg);
+}
+
+#myStream button{
+  padding: 5px 15px;
+  border: none;
+  border-radius: 5px;
+  transition: all 0.2s ease-in-out;
+  background: none;
+  align-items: center;
+}
+
+#myStream button:first-child{
+  margin-right: 10px;
+}
+
+#myFace, #peerFace{
+  display: flex;
+}
+
+
+
+
+
+/* 버튼 아이콘 hidden 적용 */
+.hidden {
+  display: none;
+}
 
 

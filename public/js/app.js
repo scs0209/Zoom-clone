@@ -1,19 +1,26 @@
-
 //socketIO를 front-end에서 back-end와 연결시켜줌
 const socket = io();
 
-const myFace = document.getElementById("myFace");
-const muteBtn = document.getElementById("mute");
-const cameraBtn = document.getElementById("camera");
-const camerasSelect = document.getElementById("cameras");
+const myFace = document.querySelector("#myFace");
+const muteBtn = document.querySelector("#mute");
+const muteIcon = muteBtn.querySelector(".muteIcon");
+const unMuteIcon = muteBtn.querySelector(".unMuteIcon");
+const cameraBtn = document.querySelector("#camera");
+const cameraIcon = cameraBtn.querySelector(".cameraIcon");
+const unCameraIcon = cameraBtn.querySelector(".unCameraIcon");
+const camerasSelect = document.querySelector("#cameras");
 const call = document.getElementById("call");
+const controllers = document.getElementById("controllers");
 
-call.hidden = true;
-
+const HIDDEN = "hidden";
+call.hidden = "true";
+controllers.hidden = "true";
 // stream받기 : stream은 비디오와 오디오가 결합된 것
 let myStream;
-let muted = false;
+let muted = true;
+unMuteIcon.classList.add(HIDDEN);
 let cameraOff = false;
+unCameraIcon.classList.add(HIDDEN);
 let roomName;
 let myPeerConnection;//누군가 getMedia함수를 불렀을 대와 똑같이 stream을 공유하기 위한 변수
 
@@ -25,7 +32,7 @@ async function getCameras() {
     const devices = await navigator.mediaDevices.enumerateDevices();
     //videoinput만 가져오기
     const cameras = devices.filter((device) => device.kind === "videoinput");
-    const currentCamera = myStream.getVideoTracks()[0];
+    const currentCamera = myStream.getVideoTracks();
     cameras.forEach(camera => {
       const option = document.createElement("option");
       //카메라의 고유 값은 value에 넣기
@@ -61,6 +68,9 @@ async function getMedia(deviceId){
     );
     myFace.srcObject = myStream;
     if(!deviceId){//처음 딱 1번만 실행! 우리가 맨 처츰 getMedia할 때만 실행
+      myStream
+        .getAudioTracks()
+        .forEach((track) => (track.enabled = false));
       await getCameras();
     }
   } catch(e) {
@@ -69,30 +79,32 @@ async function getMedia(deviceId){
 }
 
 
-
-
-function handleMuteClick(){
-  myStream
+function handleMuteClick() {
+  myStream //
     .getAudioTracks()
-    .forEach(track => (track.enabled = !track.enabled));
-  if(!muted){
-    muteBtn.innerHTML = "Unmute";
-    muted = true;
-  } else {
-    muteBtn.innerHTML = "Mute";
+    .forEach((track) => (track.enabled = !track.enabled));
+  if (muted) {
+    unMuteIcon.classList.remove(HIDDEN);
+    muteIcon.classList.add(HIDDEN);
     muted = false;
+  } else {
+    muteIcon.classList.remove(HIDDEN);
+    unMuteIcon.classList.add(HIDDEN);
+    muted = true;
   }
 }
 
 function handleCameraClick(){
-  myStream
+  myStream //
     .getVideoTracks()
     .forEach((track) => (track.enabled = !track.enabled));
-  if(cameraOff){
-    cameraBtn.innerText = "Camera Off";
+  if (cameraOff) {
+    cameraIcon.classList.remove(HIDDEN);
+    unCameraIcon.classList.add(HIDDEN);
     cameraOff = false;
   } else {
-    cameraBtn.innerText = "Camera On";
+    unCameraIcon.classList.remove(HIDDEN);
+    cameraIcon.classList.add(HIDDEN);
     cameraOff = true;
   }
 }
@@ -122,6 +134,7 @@ const welcomerForm = welcome.querySelector("form");
 async function initCall() {
   welcome.hidden = true;
   call.hidden = false;
+  controllers.hidden = false;
   await getMedia();
   makeConnection();
 }

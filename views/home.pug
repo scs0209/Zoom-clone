@@ -11,21 +11,30 @@ html(lang="en")
     link(rel="stylesheet", href="./public/css/style.css")
   body 
       header
-        h1 <i class="fa-solid fa-video"></i>Noom
+        <i class="fa-solid fa-video"></i>
+        h1 Soom
       main
         div#welcome
           h2 Welcome join our room!!
           form
             input(placeholder="room name", required, type="text")
+            input#nickname(placeholder="Your nickname", required, type="text")
             button Enter room
-      //- playsinline은 모바일 브라우저가 필요로 하는 property
-      //- 모바일 기기로 비디오를 재생하면 비디오가 전체화면이 되버림 -> playsinline을 하면 전체화면이 되지 않는다!
-      div#call
-        div#myStream
-          video#myFace(autoplay, playsinline, width="500", height="500")
-          button#mute Mute
-          button#camera Camera Off
-          select#cameras
-          video#peerFace(autoplay, playsinline, width="500", height="500")
+            
+        div#call(class="call")
+          div#streamBox
+            div#myStream
+              video#myFace(autoplay, playsinline, width="500", height="500")
+              div#controllers
+                div#controller
+                  button#mute
+                    i(class="fas fa-microphone fa-2x unMuteIcon")
+                    i(class="fas fa-microphone-slash fa-2x muteIcon")
+                  button#camera
+                    i(class="fas fa-video fa-2x cameraIcon")
+                    i(class="fas fa-video-slash fa-2x unCameraIcon")
+                div#controls
+                  select#cameras
+              video#peerFace(autoplay, playsinline, width="500", height="500")
       script(src="/socket.io/socket.io.js")
       script(src="/public/js/app.js") 
